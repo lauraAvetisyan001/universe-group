@@ -56,6 +56,10 @@ export class AuthService {
     return null;
   }
 
+  public isAuthenticated(): boolean {
+    return !!localStorage.getItem('access_token');
+  }
+
   public logout(): void {
     localStorage.removeItem('access_token');
     this.router.navigate(['/login']);

@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AuthService } from '../../../shared/services/auth.service';
 import { LoginReq } from '../../../shared/interfaces/auth';
-import { Subject, takeUntil } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { MaterialModule } from '../../../shared/modules/material.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sign-in',
@@ -16,7 +16,7 @@ import { MaterialModule } from '../../../shared/modules/material.module';
   styleUrl: './sign-in.component.scss',
 })
 export class SignInComponent {
-  private destroy$: Subject<void> = new Subject();
+  private destroyRef = inject(DestroyRef);
 
   public loginForm!: FormGroup;
 
@@ -39,7 +39,8 @@ export class SignInComponent {
     };
     this.authService
       .login(loginForm)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+
       .subscribe({
         next: (response) => {
           localStorage.setItem('access_token', response.access_token);
@@ -55,14 +56,10 @@ export class SignInComponent {
   public checkUser(): void {
     this.authService
       .checkUser()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+
       .subscribe((data) => {
         this.authService.setUserRole(data.role);
       });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CreateDocumentComponent } from './create-document/create-document.component';
 import { CommonModule } from '@angular/common';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
 import { AuthService } from '../../shared/services/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-document-panel',
@@ -12,23 +12,18 @@ import { AuthService } from '../../shared/services/auth.service';
   styleUrl: './document-panel.component.scss',
 })
 export class DocumentPanelComponent {
-  private destroy$: Subject<void> = new Subject();
-
   public role: string | null = null;
+
+  private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
 
   public ngOnInit(): void {
     this.authService
       .checkUser()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         this.role = data.role;
         this.authService.setUserRole(data.role);
       });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

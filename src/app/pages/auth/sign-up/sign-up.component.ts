@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Output } from '@angular/core';
 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -10,10 +10,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { UserRole } from '../../../shared/models/user-role.type';
 import { AuthService } from '../../../shared/services/auth.service';
 import { RegisterRequest } from '../../../shared/interfaces/auth';
-import { catchError, EMPTY, Subject, takeUntil } from 'rxjs';
+import { catchError, EMPTY } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthComponent } from '../auth.component';
 import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sign-up',
@@ -29,7 +30,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './sign-up.component.scss',
 })
 export class SignUpComponent {
-  private destroy$: Subject<void> = new Subject();
+  private destroyRef = inject(DestroyRef);
 
   public roles: UserRole[] = ['USER', 'REVIEWER'];
   public registerForm!: FormGroup;
@@ -63,8 +64,7 @@ export class SignUpComponent {
 
     this.authService
       .register(registerForm)
-      .pipe(
-        takeUntil(this.destroy$),
+      .pipe(takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           if (error.status === 409) {
             this.toastr.error('This email already exist');
@@ -78,10 +78,5 @@ export class SignUpComponent {
           this.authComponent.switchToSignInTab();
         }
       });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

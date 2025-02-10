@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -10,7 +11,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { DocumentService } from '../../../shared/services/document.service';
-import { catchError, EMPTY, filter, Subject, takeUntil } from 'rxjs';
+import { catchError, EMPTY, filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Document } from '../../../shared/interfaces/document';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +22,7 @@ import {
   REVIEWER_FILTERS,
   USER_FILTERS,
 } from '../../../shared/constants/document-statuses';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../shared/services/auth.service';
 import { User } from '../../../shared/interfaces/auth';
 import { Params } from '@angular/router';
@@ -34,8 +36,6 @@ import { MaterialModule } from '../../../shared/modules/material.module';
   styleUrl: './documents-list.component.scss',
 })
 export class DocumentsListComponent {
-  private destroy$: Subject<void> = new Subject();
-
   @ViewChild('app', { static: false }) appContainer: ElementRef | undefined;
 
   public page: WritableSignal<number> = signal(1);
@@ -56,6 +56,7 @@ export class DocumentsListComponent {
     this.role === 'REVIEWER' ? REVIEWER_FILTERS : USER_FILTERS
   );
 
+  private destroyRef = inject(DestroyRef);
   private documentService = inject(DocumentService);
   private injector = inject(Injector);
   private dialog = inject(MatDialog);
@@ -65,7 +66,7 @@ export class DocumentsListComponent {
   public ngOnInit(): void {
     this.authService
       .checkUser()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         this.user.set(data);
         this.role = data.role;
@@ -86,7 +87,7 @@ export class DocumentsListComponent {
   public showFile(id: string): void {
     this.documentService
       .getDocumentById(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => {
         PSPDFKit.load({
           baseUrl: location.protocol + '//' + location.host + '/assets/',
@@ -131,7 +132,7 @@ export class DocumentsListComponent {
 
     this.documentService
       .getDocuments(params)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => {
         if (this.role === 'REVIEWER') {
           response.results = response.results.filter(
@@ -161,14 +162,14 @@ export class DocumentsListComponent {
     dialogRef
       .afterClosed()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         filter((result) => !!result)
       )
       .subscribe((result) => {
         if (result?.name) {
           this.documentService
             .updateDocumentName(document.id, result.name)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
               document.name = result.name;
             });
@@ -177,7 +178,7 @@ export class DocumentsListComponent {
           this.documentService
             .updateDocumentStatus(document.id, result.status)
             .pipe(
-              takeUntil(this.destroy$),
+              takeUntilDestroyed(this.destroyRef),
               catchError((error) => {
                 if (error) {
                   this.toastr.error(error.error.message);
@@ -195,7 +196,7 @@ export class DocumentsListComponent {
   public deleteDocument(id: string): void {
     this.documentService
       .deleteDocument(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.documents.set(this.documents().filter((doc) => doc.id !== id));
       });
@@ -204,7 +205,7 @@ export class DocumentsListComponent {
   public revokeDocument(id: string): void {
     this.documentService
       .revokeDocument(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         const updatedDocuments = this.documents().map((doc) => {
           if (doc.id === id) {
@@ -220,7 +221,7 @@ export class DocumentsListComponent {
   public sendToReview(id: string): void {
     this.documentService
       .sendToReview(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         const updatedDocuments = this.documents().map((doc) => {
           if (doc.id === id) {
@@ -231,10 +232,5 @@ export class DocumentsListComponent {
 
         this.documents.set(updatedDocuments);
       });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

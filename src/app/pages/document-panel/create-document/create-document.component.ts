@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,8 +14,8 @@ import {
 } from '@angular/forms';
 import { DocumentService } from '../../../shared/services/document.service';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
 import { MaterialModule } from '../../../shared/modules/material.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-create-document',
@@ -18,11 +24,10 @@ import { MaterialModule } from '../../../shared/modules/material.module';
   styleUrl: './create-document.component.scss',
 })
 export class CreateDocumentComponent {
-  private destroy$: Subject<void> = new Subject();
-
   public documentForm!: FormGroup;
   public selectedFile: File | null = null;
 
+  private destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
   private documentService = inject(DocumentService);
 
@@ -51,15 +56,10 @@ export class CreateDocumentComponent {
 
     this.documentService
       .addDocument(formData)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.documentForm.reset();
         this.selectedFile = null;
       });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
