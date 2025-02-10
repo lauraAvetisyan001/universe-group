@@ -1,0 +1,11 @@
+:host {
+  height: 60px;
+  background-color: black;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-bottom: 30px;
+  .logout {
+    margin-right: 50px;
+  }
+}

@@ -1,0 +1,28 @@
+<form class="register" [formGroup]="registerForm">
+  <mat-form-field class="register__field" appearance="outline">
+    <mat-label>Full name</mat-label>
+    <input matInput formControlName="fullName"/>
+    <mat-error *ngIf="registerForm.get('fullName')?.hasError('required')">Name is required</mat-error>
+  </mat-form-field>
+
+  <mat-form-field class="register__field" appearance="outline">
+    <mat-label>Role</mat-label>
+    <mat-select formControlName="role">
+        <mat-option [value]="role" *ngFor="let role of roles">{{ role }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="register__field" appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email"/>
+    <mat-error *ngIf="registerForm.get('email')?.hasError('email')">Invalid email format</mat-error>
+  </mat-form-field>
+
+  <mat-form-field class="register__field" appearance="outline">
+    <mat-label>Password</mat-label>
+    <input matInput formControlName="password"/>
+    <mat-error *ngIf="registerForm.get('password')?.hasError('required')">Password is required</mat-error>
+  </mat-form-field>
+
+  <button mat-raised-button type="submit" (click)="signUp()" [disabled]="registerForm.invalid">Sign up</button>
+</form>

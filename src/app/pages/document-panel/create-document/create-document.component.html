@@ -1,0 +1,36 @@
+<form [formGroup]="documentForm" class="document">
+  <mat-form-field appearance="outline" class="document__field">
+    <mat-label>Document name</mat-label>
+    <input matInput formControlName="name" required />
+  </mat-form-field>
+
+  <div class="document__input">
+    <label for="file" class="label">Upload PDF</label>
+    <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+    <input
+      id="file"
+      type="file"
+      accept="application/pdf"
+      (change)="onFileSelected($event)"
+      required
+    />
+  </div>
+
+  <div class="document__actions">
+    <button
+      mat-raised-button
+      (click)="submitDocument('DRAFT')"
+      [disabled]="documentForm.invalid"
+    >
+      Save as draft
+    </button>
+
+    <button
+      mat-raised-button
+      (click)="submitDocument('READY_FOR_REVIEW')"
+      [disabled]="documentForm.invalid"
+    >
+      Send Document
+    </button>
+  </div>
+</form>

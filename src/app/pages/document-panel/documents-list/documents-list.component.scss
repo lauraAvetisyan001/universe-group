@@ -1,0 +1,63 @@
+:host {
+  z-index: 1;
+  position: relative;
+  margin-top: 30px;
+  .filter {
+    margin-left: 160px;
+    display: table;
+  }
+  .documents {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 50px;
+    z-index: 3;
+    position: relative;
+    &__list {
+      padding: 0 50px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      .document {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        cursor: pointer;
+        min-width: 300px;
+
+        &__name {
+          display: flex;
+          align-items: center;
+          position: relative;
+        }
+      }
+    }
+  }
+}
+
+.app {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vh;
+  background: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  display: none;
+}
+
+.app-show {
+  z-index: 1000;
+  display: block;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+}

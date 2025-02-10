@@ -1,0 +1,21 @@
+<mat-dialog-content>
+  <p class="title">Edit document</p>
+  <mat-form-field appearance="outline" *ngIf="role === 'USER'">
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="name" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="select" *ngIf="role === 'REVIEWER'">
+    <mat-label>Status</mat-label>
+    <mat-select [(value)]="selectedStatus">
+      <mat-option *ngFor="let status of statuses" [value]="status.value">{{
+        status.label
+      }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-button (click)="confirmChanges()" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

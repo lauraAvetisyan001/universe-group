@@ -5,7 +5,8 @@
 /tmp
 /out-tsc
 /bazel-out
-
+.env
+/package-lock.json
 # Node
 /node_modules
 npm-debug.log
@@ -22,6 +23,7 @@ yarn-error.log
 
 # Visual Studio Code
 .vscode/*
+.vs
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -29,6 +31,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
+/.angular
 /.angular/cache
 .sass-cache/
 /connect.lock

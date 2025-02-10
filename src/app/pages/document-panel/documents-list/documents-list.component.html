@@ -1,0 +1,89 @@
+<mat-form-field appearance="outline" class="filter">
+  <mat-label>Filter by status</mat-label>
+  <mat-select
+    (selectionChange)="loadDocuments()"
+    [(value)]="selectedStatusFilter"
+  >
+    <mat-option *ngFor="let filter of statusFilters()" [value]="filter.value">{{
+      filter.label
+    }}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<div class="filter" *ngIf="role === 'REVIEWER'">
+  <mat-form-field appearance="outline">
+    <mat-label>Filter by creator</mat-label>
+    <input matInput [(ngModel)]="creatorId" />
+  </mat-form-field>
+  <button mat-button (click)="loadDocuments()">Filter</button>
+</div>
+
+<mat-form-field appearance="outline" class="filter">
+  <mat-label>Sort by</mat-label>
+  <mat-select (selectionChange)="loadDocuments()" [(value)]="selectedSort">
+    <mat-option *ngFor="let sort of sorts" [value]="sort">{{
+      sort
+    }}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<div class="documents" *ngIf="!isShowFile()">
+  <button mat-button (click)="prevPage()" [disabled]="page() === 1">
+    Previous
+  </button>
+  <div class="documents__list">
+    <div *ngFor="let document of documents()" class="document">
+      <button
+        mat-icon-button
+        *ngIf="
+          document.status === 'READY_FOR_REVIEW' ||
+          (document.status === 'UNDER_REVIEW' && role !== 'USER')
+        "
+        (click)="openEditDialog(document)"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        *ngIf="
+          document.status === 'DRAFT' ||
+          (document.status === 'REVOKE' && role === 'USER')
+        "
+        (click)="deleteDocument(document.id)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        *ngIf="document.status === 'READY_FOR_REVIEW' && role === 'USER'"
+        (click)="revokeDocument(document.id)"
+      >
+        <mat-icon>cancel</mat-icon>
+      </button>
+      <p class="document__name">
+        {{ document.name }}
+        <button mat-icon-button (click)="showFile(document.id)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </p>
+      <p>Status: {{ document.status }}</p>
+
+      <button
+        mat-button
+        *ngIf="document.status === 'DRAFT' && role === 'USER'"
+        (click)="sendToReview(document.id)"
+      >
+        Send to review
+      </button>
+    </div>
+  </div>
+  <button
+    mat-button
+    (click)="nextPage()"
+    [disabled]="documents().length < size()"
+  >
+    Next
+  </button>
+</div>
+<div class="overlay" (click)="closeFile()" *ngIf="isShowFile()"></div>
+<div #app id="app" class="app" [ngClass]="{ 'app-show': isShowFile() }"></div>

@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  justify-content: center;
+  .login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    padding: 0px 50px 10px;
+    &__input {
+      display: block;
+      width: 300px;
+      margin-bottom: 15px;
+    }
+  }
+}
