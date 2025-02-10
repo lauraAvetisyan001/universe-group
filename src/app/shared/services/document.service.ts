@@ -30,27 +30,28 @@ export class DocumentService {
     return this.http.get<Document>(`${this.apiUrl}/${id}`);
   }
 
-  public updateDocumentName(id: string, name: string): Observable<Document> {
-    return this.http.patch<Document>(`${this.apiUrl}/${id}`, { name });
+  public updateDocumentName(id: string, name: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}`, { name });
   }
 
   public updateDocumentStatus(
     id: string,
     status: string
-  ): Observable<Document> {
-    return this.http.post<Document>(`${this.apiUrl}/${id}/change-status`, {
+  ): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/change-status`, {
       status,
     });
   }
-  public deleteDocument(id: string): Observable<Document> {
-    return this.http.delete<Document>(`${this.apiUrl}/${id}`);
+
+  public deleteDocument(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  public revokeDocument(id: string): Observable<Document> {
-    return this.http.post<Document>(`${this.apiUrl}/${id}/revoke-review`, {});
+  public revokeDocument(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/revoke-review`, {});
   }
 
-  public sendToReview(id: string): Observable<Document> {
-    return this.http.post<Document>(`${this.apiUrl}/${id}/send-to-review`, {});
+  public sendToReview(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/send-to-review`, {});
   }
 }

@@ -40,7 +40,6 @@ export class SignInComponent {
     this.authService
       .login(loginForm)
       .pipe(takeUntilDestroyed(this.destroyRef))
-
       .subscribe({
         next: (response) => {
           localStorage.setItem('access_token', response.access_token);
@@ -57,7 +56,6 @@ export class SignInComponent {
     this.authService
       .checkUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
-
       .subscribe((data) => {
         this.authService.setUserRole(data.role);
       });

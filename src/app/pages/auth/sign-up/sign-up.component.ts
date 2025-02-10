@@ -70,7 +70,8 @@ export class SignUpComponent {
             this.toastr.error('This email already exist');
           }
           return EMPTY;
-        })
+        }),
+        
       )
       .subscribe((response) => {
         if (response) {

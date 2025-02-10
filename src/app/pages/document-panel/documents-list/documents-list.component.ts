@@ -53,7 +53,11 @@ export class DocumentsListComponent {
   public sorts: string[] = ['Name', 'ASC'];
   public selectedStatusFilter: string = '';
   public statusFilters = computed(() =>
-    this.role === 'REVIEWER' ? REVIEWER_FILTERS : USER_FILTERS
+    this.user()?.role === 'REVIEWER' ? REVIEWER_FILTERS : USER_FILTERS
+  );
+
+  private userId = computed(() =>
+    this.user()?.role === 'USER' ? this.user()?.id : this.creatorId
   );
 
   private destroyRef = inject(DestroyRef);
@@ -108,13 +112,6 @@ export class DocumentsListComponent {
   }
 
   public loadDocuments(): void {
-    let userId;
-
-    if (this.user()?.role === 'USER') {
-      userId = this.user()?.id;
-    } else if (this.creatorId) {
-      userId = this.creatorId;
-    }
     const params: Params = {
       page: this.page(),
       size: this.size(),
@@ -126,8 +123,8 @@ export class DocumentsListComponent {
     if (this.selectedSort) {
       params['sort'] = this.selectedSort.toLowerCase();
     }
-    if (userId) {
-      params['creator'] = userId;
+    if (this.userId()) {
+      params['creator'] = this.userId();
     }
 
     this.documentService
@@ -202,35 +199,29 @@ export class DocumentsListComponent {
       });
   }
 
-  public revokeDocument(id: string): void {
-    this.documentService
-      .revokeDocument(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const updatedDocuments = this.documents().map((doc) => {
-          if (doc.id === id) {
-            doc.status = 'REVOKE';
-          }
-          return doc;
-        });
-
-        this.documents.set(updatedDocuments);
-      });
-  }
-
   public sendToReview(id: string): void {
     this.documentService
       .sendToReview(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        const updatedDocuments = this.documents().map((doc) => {
-          if (doc.id === id) {
-            doc.status = 'READY_FOR_REVIEW';
-          }
-          return doc;
-        });
+        this.documents.update((docs) =>
+          docs.map((doc) =>
+            doc.id === id ? { ...doc, status: 'READY_FOR_REVIEW' } : doc
+          )
+        );
+      });
+  }
 
-        this.documents.set(updatedDocuments);
+  public revokeDocument(id: string): void {
+    this.documentService
+      .revokeDocument(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.documents.update((docs) =>
+          docs.map((doc) =>
+            doc.id === id ? { ...doc, status: 'REVOKE' } : doc
+          )
+        );
       });
   }
 }
